@@ -1,0 +1,61 @@
+buildscript {
+    ext {
+        byteBuddyVersion = '1.7.11'
+        springContractVersion = '2.1.0.RELEASE'
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+    }
+}
+
+apply plugin: 'idea'
+apply plugin: 'groovy'
+apply plugin: 'io.spring.dependency-management'
+apply from: "${rootProject.projectDir}/gradle/maven-publish.gradle"
+
+dependencyManagement {
+    imports {
+        mavenBom 'org.springframework.cloud:spring-cloud-dependencies:Greenwich.RELEASE'
+    }
+    dependencies {
+        dependency "org.springframework.data:spring-data-redis:2.1.2.RELEASE"
+        dependency "com.aliyun:aliyun-java-sdk-core:4.0.6"
+        dependency "com.aliyun:aliyun-java-sdk-dysmsapi:1.1.0"
+        dependency "com.aliyun.oss:aliyun-sdk-oss:3.4.1"
+    }
+}
+
+dependencies {
+    compileOnly("org.springframework.boot:spring-boot-starter-web:${springBootVersion}")
+    testCompile("org.springframework.boot:spring-boot-starter-web:${springBootVersion}")
+    testCompile("org.springframework.boot:spring-boot-starter-test:${springBootVersion}")
+
+    // spock
+    testCompile('org.spockframework:spock-spring:1.2-groovy-2.4')
+    testCompile("net.bytebuddy:byte-buddy-agent:${byteBuddyVersion}")
+    testCompile("net.bytebuddy:byte-buddy:${byteBuddyVersion}")
+    testCompile 'org.awaitility:awaitility-groovy:3.1.2'
+    testCompile("org.springframework.cloud:spring-cloud-starter-contract-verifier:${springContractVersion}") {
+        force = true
+    }
+
+    //aop
+    compileOnly("org.springframework.boot:spring-boot-starter-aop:${springBootVersion}")
+    testCompile("org.springframework.boot:spring-boot-starter-aop:${springBootVersion}")
+
+    //jdbc
+    testCompile("org.springframework.boot:spring-boot-starter-jdbc:${springBootVersion}")
+    testCompile('com.h2database:h2:1.4.197')
+
+    // test mobile number generator
+    testCompile('com.github.binarywang:java-testdata-generator:1.1.2')
+
+    // json
+    compile("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.9.8")
+
+    // spring boot meta data
+    compileOnly("org.springframework.boot:spring-boot-configuration-processor:${springBootVersion}")
+
+    // arch unit
+    testCompile 'com.tngtech.archunit:archunit:0.10.2'
+}

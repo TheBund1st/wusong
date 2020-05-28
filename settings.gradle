@@ -1,0 +1,4 @@
+rootProject.name = 'wusong'
+
+include ':checkout-core'
+include ':examples/food'
