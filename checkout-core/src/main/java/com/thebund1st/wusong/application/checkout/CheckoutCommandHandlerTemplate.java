@@ -1,8 +1,8 @@
-package com.thebund1st.wusong.application.task.checkout;
+package com.thebund1st.wusong.application.checkout;
 
 import com.thebund1st.wusong.domain.order.OrderFactory;
 import com.thebund1st.wusong.domain.order.OrderRepository;
-import com.thebund1st.wusong.application.task.CheckoutCommandHandler;
+import com.thebund1st.wusong.application.CheckoutCommandHandler;
 import lombok.Getter;
 import lombok.Setter;
 

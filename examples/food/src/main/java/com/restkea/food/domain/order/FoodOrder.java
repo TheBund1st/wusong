@@ -1,7 +1,7 @@
-package com.restkea.food.application.domain.order;
+package com.restkea.food.domain.order;
 
-import com.restkea.food.application.domain.order.item.FoodOrderLineItem;
-import com.restkea.food.application.domain.order.overdue.Overdue;
+import com.restkea.food.domain.order.item.FoodOrderLineItem;
+import com.restkea.food.domain.order.overdue.Overdue;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;

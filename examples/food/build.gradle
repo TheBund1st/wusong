@@ -37,6 +37,8 @@ dependencies {
 
     // arch unit
     testCompile 'com.tngtech.archunit:archunit:0.10.2'
+
+    compile project(":checkout-core")
 }
 
 

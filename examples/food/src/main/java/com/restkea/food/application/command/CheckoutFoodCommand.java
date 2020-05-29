@@ -1,4 +1,4 @@
-package com.restkea.food.application.task.command;
+package com.restkea.food.application.command;
 
 import com.restkea.food.domain.order.item.FoodItem;
 import lombok.Data;

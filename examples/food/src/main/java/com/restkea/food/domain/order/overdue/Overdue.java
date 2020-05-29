@@ -1,4 +1,4 @@
-package com.restkea.food.application.domain.order.overdue;
+package com.restkea.food.domain.order.overdue;
 
 public enum Overdue {
     ENABLED, CLOSED

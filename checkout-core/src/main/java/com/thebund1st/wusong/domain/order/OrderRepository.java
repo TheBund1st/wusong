@@ -1,4 +1,4 @@
-package com.thebund1st.wusong.application.domain.order;
+package com.thebund1st.wusong.domain.order;
 
 public interface OrderRepository<OID, O> {
     void save(O order);

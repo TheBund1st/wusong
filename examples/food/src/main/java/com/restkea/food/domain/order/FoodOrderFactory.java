@@ -1,6 +1,6 @@
-package com.restkea.food.application.domain.order;
+package com.restkea.food.domain.order;
 
-import com.thebund1st.wusong.application.domain.order.OrderFactory;
+import com.thebund1st.wusong.domain.order.OrderFactory;
 
 import java.time.LocalDateTime;
 import java.util.UUID;

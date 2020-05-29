@@ -1,4 +1,4 @@
-package com.thebund1st.wusong.application.domain.order;
+package com.thebund1st.wusong.domain.order;
 
 import java.time.LocalDateTime;
 

@@ -1,4 +1,4 @@
-package com.restkea.food.application.domain.order;
+package com.restkea.food.domain.order;
 
 public interface FoodOrderRepository {
     void save(FoodOrder order);

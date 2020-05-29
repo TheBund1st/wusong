@@ -1,7 +1,7 @@
-package com.restkea.food.application.domain.payment;
+package com.restkea.food.domain.payment;
 
-import com.restkea.food.application.domain.order.FoodOrder;
-import com.thebund1st.wusong.application.domain.order.ApplyToOrder;
+import com.restkea.food.domain.order.FoodOrder;
+import com.thebund1st.wusong.domain.order.ApplyToOrder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;

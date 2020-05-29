@@ -1,6 +1,6 @@
-package com.restkea.food.application.task.checkout;
+package com.restkea.food.application.checkout;
 
-import com.restkea.food.application.task.command.CancelFoodCheckoutCommand;
+import com.restkea.food.application.command.CancelFoodCheckoutCommand;
 import com.restkea.food.domain.order.FoodOrder;
 import com.thebund1st.wusong.application.checkout.CancelCheckoutCommandHandlerTemplate;
 import lombok.RequiredArgsConstructor;
