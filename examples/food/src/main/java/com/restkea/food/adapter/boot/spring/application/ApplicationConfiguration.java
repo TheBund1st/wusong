@@ -1,26 +1,31 @@
 package com.restkea.food.adapter.boot.spring.application;
 
-import com.restkea.food.application.checkout.CheckoutFoodBusinessIdentityConverter;
-import com.restkea.food.application.checkout.CheckoutFoodCommandHandler;
-import com.restkea.food.application.checkout.overdue.CloseOverdueFoodCheckoutWatcher;
-import com.restkea.food.application.checkout.overdue.EnableOverdueFoodCheckoutWatcher;
-import com.restkea.food.application.command.CheckoutFoodCommand;
-import com.restkea.food.application.command.MakeFoodPaymentCommand;
-import com.restkea.food.application.payment.MakeFoodPaymentCommandHandler;
-import com.restkea.food.domain.order.CheckoutFoodBusinessIdentity;
+import com.restkea.food.application.task.context.PlaceFoodOrderContext;
+import com.restkea.food.application.task.context.ReceiveFoodPaymentContext;
+import com.restkea.food.application.task.step.AssembleFoodOrder;
+import com.restkea.food.application.task.step.DisableOverdueFoodCheckoutWatcher;
+import com.restkea.food.application.task.step.DisableOverdueFoodCheckoutWatcherCondition;
+import com.restkea.food.application.task.step.EnableOverdueFoodCheckoutWatcher;
+import com.restkea.food.application.task.step.EnableOverdueFoodCheckoutWatcherCondition;
+import com.restkea.food.application.task.step.PersistFoodOrder;
+import com.restkea.food.application.task.step.PersistFoodPayment;
+import com.restkea.food.application.task.step.ReceiveFoodPayment;
+import com.restkea.food.application.task.step.SnapshotFoodPrice;
 import com.restkea.food.domain.order.FoodOrder;
 import com.restkea.food.domain.order.FoodOrderFactory;
+import com.restkea.food.domain.order.FoodOrderRepository;
 import com.restkea.food.domain.payment.FoodPayment;
-import com.thebund1st.wusong.application.checkout.CheckoutBusinessIdentityConverter;
-import com.thebund1st.wusong.application.checkout.CheckoutGivenChain;
-import com.thebund1st.wusong.application.checkout.CheckoutThenChain;
-import com.thebund1st.wusong.application.payment.MakePaymentCommandHandlerAspect;
-import com.thebund1st.wusong.application.payment.MakePaymentThenChain;
-import com.thebund1st.wusong.domain.order.OrderRepository;
-import com.thebund1st.wusong.domain.payment.PaymentRepository;
+import com.restkea.food.domain.payment.FoodPaymentRepository;
+import com.restkea.food.domain.pricing.FoodPriceCalculator;
+import org.thebund1st.tfb.task.step.GherkinTask;
+import org.thebund1st.tfb.task.step.ThenChain;
+import org.thebund1st.tfb.task.step.ThenConditional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import static org.thebund1st.tfb.task.step.GivenDummy.dummyGiven;
+import static java.util.Arrays.asList;
 
 @Configuration
 public class ApplicationConfiguration {
@@ -29,73 +34,84 @@ public class ApplicationConfiguration {
     private FoodOrderFactory foodOrderFactory;
 
     @Autowired
-    private OrderRepository<String, FoodOrder> foodOrderRepository;
+    private FoodOrderRepository foodOrderRepository;
 
     @Autowired
-    private PaymentRepository<String, FoodPayment> foodPaymentRepository;
+    private FoodPaymentRepository foodPaymentRepository;
+
+    @Autowired
+    private FoodPriceCalculator foodPriceCalculator;
 
     @Bean
-    public CheckoutFoodCommandHandler checkoutFoodCommandHandler() {
-        CheckoutFoodCommandHandler bean = new CheckoutFoodCommandHandler();
-        bean.setCheckoutBusinessIdentityConverter(checkoutFoodBusinessIdentityConverter());
-        bean.setOrderFactory(foodOrderFactory);
-        bean.setOrderRepository(foodOrderRepository);
-        bean.setCheckoutGiven(checkoutFoodGivenChain());
-        bean.setCheckoutThen(checkoutFoodThenChain());
+    public GherkinTask<PlaceFoodOrderContext, FoodOrder> placeFoodOrderTask() {
+        GherkinTask<PlaceFoodOrderContext, FoodOrder> bean = new GherkinTask<>();
+        bean.setGiven(snapshotFoodPrice());
+        bean.setWhen(assembleFoodOrder());
+        bean.setThen(new ThenChain<>(asList(optionallyEnableOverdueFoodCheckoutWatcher(), persistFoodOrder())));
         return bean;
     }
 
     @Bean
-    public CheckoutGivenChain<CheckoutFoodCommand, FoodOrder> checkoutFoodGivenChain() {
-        return new CheckoutGivenChain<>();
+    public SnapshotFoodPrice snapshotFoodPrice() {
+        return new SnapshotFoodPrice(foodPriceCalculator);
     }
 
     @Bean
-    public CheckoutThenChain<CheckoutFoodCommand, FoodOrder> checkoutFoodThenChain() {
-        CheckoutThenChain<CheckoutFoodCommand, FoodOrder> bean = new CheckoutThenChain<>();
-        bean.add(enableOverdueFoodCheckoutWatcher());
-        return bean;
+    public AssembleFoodOrder assembleFoodOrder() {
+        return new AssembleFoodOrder(foodOrderFactory);
     }
 
     @Bean
-    public CheckoutBusinessIdentityConverter<CheckoutFoodCommand, CheckoutFoodBusinessIdentity>
-    checkoutFoodBusinessIdentityConverter() {
-        return new CheckoutFoodBusinessIdentityConverter();
+    public PersistFoodOrder persistFoodOrder() {
+        return new PersistFoodOrder(foodOrderRepository);
+    }
+
+    @Bean
+    public ThenConditional<PlaceFoodOrderContext, FoodOrder> optionallyEnableOverdueFoodCheckoutWatcher() {
+        return new ThenConditional<>(enableOverdueFoodCheckoutWatcherCondition(), enableOverdueFoodCheckoutWatcher());
     }
 
     @Bean
     public EnableOverdueFoodCheckoutWatcher enableOverdueFoodCheckoutWatcher() {
-        return new EnableOverdueFoodCheckoutWatcher(foodOrderRepository);
+        return new EnableOverdueFoodCheckoutWatcher();
     }
 
     @Bean
-    public MakeFoodPaymentCommandHandler makeFoodPaymentCommandHandler() {
-        MakeFoodPaymentCommandHandler bean = new MakeFoodPaymentCommandHandler();
-        bean.setPaymentRepository(foodPaymentRepository);
-        bean.setOrderRepository(foodOrderRepository);
+    public EnableOverdueFoodCheckoutWatcherCondition enableOverdueFoodCheckoutWatcherCondition() {
+        return new EnableOverdueFoodCheckoutWatcherCondition();
+    }
+
+    @Bean
+    public GherkinTask<ReceiveFoodPaymentContext, FoodPayment> receiveFoodPaymentTask() {
+        GherkinTask<ReceiveFoodPaymentContext, FoodPayment> bean = new GherkinTask<>();
+        bean.setGiven(dummyGiven());
+        bean.setWhen(receiveFoodPayment());
+        bean.setThen(new ThenChain<>(asList(optionallyCloseOverdueFoodCheckoutWatcher(), persistFoodPayment())));
         return bean;
     }
 
     @Bean
-    public MakePaymentThenChain<MakeFoodPaymentCommand, FoodPayment> makeFoodPaymentThenChain() {
-        MakePaymentThenChain<MakeFoodPaymentCommand, FoodPayment> bean = new MakePaymentThenChain<>();
-        bean.add(closeOverdueFoodCheckoutWatcher());
-        return bean;
+    public ReceiveFoodPayment receiveFoodPayment() {
+        return new ReceiveFoodPayment(foodOrderRepository);
     }
 
     @Bean
-    public CloseOverdueFoodCheckoutWatcher closeOverdueFoodCheckoutWatcher() {
-        CloseOverdueFoodCheckoutWatcher bean = new CloseOverdueFoodCheckoutWatcher();
-        bean.setOrderRepository(foodOrderRepository);
-        return bean;
+    public PersistFoodPayment persistFoodPayment() {
+        return new PersistFoodPayment(foodPaymentRepository);
     }
 
     @Bean
-    public MakePaymentCommandHandlerAspect<MakeFoodPaymentCommand, FoodPayment> makePaymentCommandHandlerAspect() {
-        MakePaymentCommandHandlerAspect<MakeFoodPaymentCommand, FoodPayment> bean =
-                new MakePaymentCommandHandlerAspect<>();
-        bean.setTarget(makeFoodPaymentCommandHandler());
-        bean.setThen(makeFoodPaymentThenChain());
-        return bean;
+    public ThenConditional<ReceiveFoodPaymentContext, FoodPayment> optionallyCloseOverdueFoodCheckoutWatcher() {
+        return new ThenConditional<>(closeOverdueFoodCheckoutWatcherCondition(), closeOverdueCheckoutWatcher());
+    }
+
+    @Bean
+    public DisableOverdueFoodCheckoutWatcherCondition closeOverdueFoodCheckoutWatcherCondition() {
+        return new DisableOverdueFoodCheckoutWatcherCondition();
+    }
+
+    @Bean
+    public DisableOverdueFoodCheckoutWatcher closeOverdueCheckoutWatcher() {
+        return new DisableOverdueFoodCheckoutWatcher();
     }
 }

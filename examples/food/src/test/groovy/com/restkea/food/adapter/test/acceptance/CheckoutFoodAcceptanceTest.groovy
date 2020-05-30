@@ -1,22 +1,27 @@
 package com.restkea.food.adapter.test.acceptance
 
-import com.restkea.food.application.checkout.CheckoutFoodCommandHandler
-import com.restkea.food.application.command.MakeFoodPaymentCommand
-import com.restkea.food.application.payment.MakeFoodPaymentCommandHandler
+
+import com.restkea.food.application.task.context.PlaceFoodOrderContext
+import com.restkea.food.application.task.context.ReceiveFoodPaymentContext
 import com.restkea.food.domain.order.FoodOrder
+import com.restkea.food.domain.order.FoodOrderRepository
 import com.restkea.food.domain.order.overdue.Overdue
 import com.restkea.food.domain.payment.FoodPayment
-import com.thebund1st.wusong.application.payment.MakePaymentCommandHandlerAspect
-import com.thebund1st.wusong.domain.order.OrderRepository
+import com.restkea.food.domain.pricing.FoodPriceCalculator
+import org.thebund1st.tfb.task.Task
 import io.restassured.RestAssured
+import org.spockframework.spring.SpringBean
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.test.context.ActiveProfiles
 import spock.lang.Specification
 
-import static com.restkea.food.application.checkout.command.CheckoutFoodCommandFixture.aCheckoutFoodCommand
-import static com.restkea.food.application.payment.command.MakeFoodPaymentCommandFixture.aMakeFoodPaymentCommand
+import static com.restkea.food.application.command.PlaceFoodOrderCommandFixture.aPlaceFoodOrderCommand
+import static com.restkea.food.application.command.ReceiveFoodPaymentCommandFixture.aMakeFoodPaymentCommand
+import static com.restkea.food.domain.order.FoodItemFixture.aFoodItem
+import static com.restkea.food.domain.pricing.FoodItemPriceFixture.aFoodItemPrice
+import static com.restkea.food.domain.pricing.FoodPriceFixture.aFoodPrice
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
@@ -26,13 +31,16 @@ class CheckoutFoodAcceptanceTest extends Specification {
     int randomServerPort
 
     @Autowired
-    private CheckoutFoodCommandHandler checkoutFoodCommandHandler
+    private Task<PlaceFoodOrderContext, FoodOrder> placeFoodOrderTask
 
     @Autowired
-    private MakePaymentCommandHandlerAspect<MakeFoodPaymentCommand, FoodPayment> makeFoodPaymentCommandHandler
+    private Task<ReceiveFoodPaymentContext, FoodPayment> receiveFoodPaymentTask
 
     @Autowired
-    private OrderRepository<String, FoodOrder> foodOrderOrderRepository
+    private FoodOrderRepository foodOrderRepository
+
+    @SpringBean
+    private FoodPriceCalculator foodPriceCalculator = Mock()
 
     def setup() {
         RestAssured.port = randomServerPort
@@ -41,11 +49,17 @@ class CheckoutFoodAcceptanceTest extends Specification {
 
     def "customer places order for food"() {
         given: "I as a customer"
-        def command = aCheckoutFoodCommand().build()
+
+        and: "I want to order some food"
+        def item = aFoodItem().build()
+        def foodPrice = aFoodPrice().withItemPrice(item, aFoodItemPrice().build()).build()
+        foodPriceCalculator.calculateWith(item.iterator().toList()) >> foodPrice
 
         when: "place an order for food"
-
-        def order = checkoutFoodCommandHandler.handle(command)
+        def command = aPlaceFoodOrderCommand().butWith(item).build()
+        def context = new PlaceFoodOrderContext()
+        context.setCommand(command)
+        def order = placeFoodOrderTask.execute(context)
 
         then: "the order is ready to pay"
         assert order
@@ -58,13 +72,20 @@ class CheckoutFoodAcceptanceTest extends Specification {
         given: "I as a customer"
 
         and: "I placed an order for food"
-        def command = aCheckoutFoodCommand().build()
-        def order = checkoutFoodCommandHandler.handle(command)
+        def item = aFoodItem().build()
+        def foodPrice = aFoodPrice().withItemPrice(item, aFoodItemPrice().build()).build()
+        foodPriceCalculator.calculateWith(item.iterator().toList()) >> foodPrice
+        def command = aPlaceFoodOrderCommand().butWith(item).build()
+        def context = new PlaceFoodOrderContext()
+        context.setCommand(command)
+        def order = placeFoodOrderTask.execute(context)
 
         when: "make payment for the food"
         command = aMakeFoodPaymentCommand().with(order).withAmount(order.getTotalAmount()).build()
-        def payment = makeFoodPaymentCommandHandler.handle(command)
-        order = foodOrderOrderRepository.shouldFindBy(payment.getOrderId())
+        context = new ReceiveFoodPaymentContext()
+        context.setCommand(command)
+        def payment = receiveFoodPaymentTask.execute(context)
+        order = foodOrderRepository.shouldFindBy(payment.getOrderId())
 
         then: "the order is fully paid"
         assert order.balanced

@@ -22,7 +22,7 @@ public class FoodOrder {
     private List<FoodOrderLineItem> lineItems = new ArrayList<>();
     private double totalAmount;
     private double paidAmount;
-    private Overdue overdue = Overdue.ENABLED;
+    private Overdue overdue = Overdue.PENDING;
     private LocalDateTime createdAt;
     private LocalDateTime overdueClosedAt;
     private LocalDateTime canceledAt;
@@ -30,10 +30,6 @@ public class FoodOrder {
 
     public void getPaidWith(double amount) {
         this.paidAmount += amount;
-    }
-
-    private boolean itShouldCloseOverdue() {
-        return overdue == Overdue.ENABLED && totalAmount - paidAmount == 0;
     }
 
     public void closeOverdue(LocalDateTime when) {

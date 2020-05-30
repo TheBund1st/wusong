@@ -2,10 +2,10 @@ package com.restkea.food.adapter.boot.spring.domain;
 
 import com.restkea.food.domain.order.FoodOrder;
 import com.restkea.food.domain.order.FoodOrderFactory;
+import com.restkea.food.domain.order.FoodOrderRepository;
 import com.restkea.food.domain.order.NoSuchFoodOrderException;
 import com.restkea.food.domain.payment.FoodPayment;
-import com.thebund1st.wusong.domain.order.OrderRepository;
-import com.thebund1st.wusong.domain.payment.PaymentRepository;
+import com.restkea.food.domain.payment.FoodPaymentRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -21,8 +21,8 @@ public class DomainConfiguration {
     }
 
     @Bean
-    public OrderRepository<String, FoodOrder> foodOrderRepository() {
-        return new OrderRepository<String, FoodOrder>() {
+    public FoodOrderRepository foodOrderRepository() {
+        return new FoodOrderRepository() {
             private Map<String, FoodOrder> orders = new HashMap<>();
 
             @Override
@@ -41,8 +41,8 @@ public class DomainConfiguration {
     }
 
     @Bean
-    public PaymentRepository<String, FoodPayment> foodPaymentRepository() {
-        return new PaymentRepository<String, FoodPayment>() {
+    public FoodPaymentRepository foodPaymentRepository() {
+        return new FoodPaymentRepository() {
             private Map<String, FoodPayment> payments = new HashMap<>();
 
             @Override
