@@ -1,15 +1,15 @@
 package com.restkea.food.application.checkout.overdue;
 
-import com.restkea.food.application.command.CloseFoodOverdueCheckoutCommand;
+import com.restkea.food.application.command.CheckoutFoodCommand;
 import com.restkea.food.domain.order.FoodOrder;
 import com.restkea.food.domain.order.overdue.Overdue;
-import com.thebund1st.wusong.domain.order.OrderRepository;
 import com.thebund1st.wusong.application.checkout.overdue.EnableOverdueCheckoutWatcherTemplate;
+import com.thebund1st.wusong.domain.order.OrderRepository;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class EnableOverdueFoodCheckoutWatcher extends
-        EnableOverdueCheckoutWatcherTemplate<CloseFoodOverdueCheckoutCommand, FoodOrder> {
+        EnableOverdueCheckoutWatcherTemplate<CheckoutFoodCommand, FoodOrder> {
 
     private final OrderRepository<String, FoodOrder> orderRepository;
 

@@ -1,7 +1,7 @@
 package com.thebund1st.wusong.application.checkout.overdue;
 
+import com.thebund1st.wusong.application.payment.MakePaymentThen;
 import com.thebund1st.wusong.domain.order.OrderRepository;
-import com.thebund1st.wusong.application.CloseOverdueCheckoutWatcherCommandHandler;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -9,20 +9,19 @@ import lombok.extern.slf4j.Slf4j;
 import static lombok.AccessLevel.PROTECTED;
 
 @Slf4j
-public abstract class CloseOverdueCheckoutWatcherTemplate<Cmd, OID, O>
-        implements CloseOverdueCheckoutWatcherCommandHandler<Cmd, O> {
+public abstract class CloseOverdueCheckoutWatcherTemplate<Cmd, P, OID, O>
+        implements MakePaymentThen<Cmd, P> {
 
     @Getter(value = PROTECTED)
     @Setter
     private OrderRepository<OID, O> orderRepository;
 
     @Override
-    public O handle(Cmd command) {
+    public void handle(Cmd command, P Payment) {
         O order = orderRepository.shouldFindBy(toOrderId(command));
         if (shouldCloseOverdueCheckoutWatcherFor(order)) {
             closeOverdueCheckoutWatcherFor(command, order);
         }
-        return order;
     }
 
     @SuppressWarnings("WeakerAccess")

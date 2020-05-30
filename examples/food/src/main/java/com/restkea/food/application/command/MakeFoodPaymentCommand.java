@@ -5,7 +5,7 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 @Data
-public class MakeFoodOrderPaymentCommand {
+public class MakeFoodPaymentCommand {
     private String orderId;
     private String digitalPaymentContextId;
     private double amount;

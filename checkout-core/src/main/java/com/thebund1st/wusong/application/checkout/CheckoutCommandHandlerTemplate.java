@@ -1,16 +1,18 @@
 package com.thebund1st.wusong.application.checkout;
 
+import com.thebund1st.wusong.application.CheckoutCommandHandler;
 import com.thebund1st.wusong.domain.order.OrderFactory;
 import com.thebund1st.wusong.domain.order.OrderRepository;
-import com.thebund1st.wusong.application.CheckoutCommandHandler;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.time.LocalDateTime;
 
 import static lombok.AccessLevel.PROTECTED;
 
 public abstract class CheckoutCommandHandlerTemplate<Cmd, BID, OID, O> implements CheckoutCommandHandler<Cmd, O> {
+
+    @Getter(value = PROTECTED)
+    @Setter
+    private CheckoutBusinessIdentityConverter<Cmd, BID> checkoutBusinessIdentityConverter;
 
     @Getter(value = PROTECTED)
     @Setter
@@ -30,7 +32,7 @@ public abstract class CheckoutCommandHandlerTemplate<Cmd, BID, OID, O> implement
 
     @Override
     public O handle(Cmd command) {
-        O order = orderFactory.make(toBusinessIdentity(command), toCreatedAt(command));
+        O order = makeOrder(command);
         checkoutGiven.handle(command, order);
         orderRepository.save(order);
         checkoutThen.handle(command, order);
@@ -38,8 +40,7 @@ public abstract class CheckoutCommandHandlerTemplate<Cmd, BID, OID, O> implement
     }
 
     @SuppressWarnings("WeakerAccess")
-    protected abstract BID toBusinessIdentity(Cmd command);
-
-    @SuppressWarnings("WeakerAccess")
-    protected abstract LocalDateTime toCreatedAt(Cmd command);
+    protected O makeOrder(Cmd command) {
+        return orderFactory.make(checkoutBusinessIdentityConverter.from(command));
+    }
 }

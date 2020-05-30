@@ -1,7 +1,7 @@
 buildscript {
     ext {
         byteBuddyVersion = '1.7.11'
-        springContractVersion = '2.1.0.RELEASE'
+        springBootVersion = '2.0.5.RELEASE'
     }
     dependencies {
         classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
@@ -10,6 +10,7 @@ buildscript {
 
 apply plugin: 'idea'
 apply plugin: 'groovy'
+apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
 
 dependencyManagement {
@@ -21,9 +22,12 @@ dependencyManagement {
 }
 
 dependencies {
-    compileOnly("org.springframework.boot:spring-boot-starter-web:${springBootVersion}")
-    testCompile("org.springframework.boot:spring-boot-starter-web:${springBootVersion}")
-    testCompile("org.springframework.boot:spring-boot-starter-test:${springBootVersion}")
+    // spring web
+    compile('org.springframework.boot:spring-boot-starter-web')
+    testCompile("org.springframework.boot:spring-boot-starter-test")
+
+    // checkout
+    compile project(":checkout-core")
 
     // spock
     testCompile('org.spockframework:spock-spring:1.2-groovy-2.4')
@@ -31,14 +35,14 @@ dependencies {
     testCompile("net.bytebuddy:byte-buddy:${byteBuddyVersion}")
     testCompile 'org.awaitility:awaitility-groovy:3.1.2'
 
-    //aop
-    compileOnly("org.springframework.boot:spring-boot-starter-aop:${springBootVersion}")
-    testCompile("org.springframework.boot:spring-boot-starter-aop:${springBootVersion}")
+    // acceptance test
+    testCompile group: 'io.rest-assured', name: 'rest-assured', version: '3.0.0'
+    testCompile 'org.awaitility:awaitility-groovy:3.1.2'
 
     // arch unit
     testCompile 'com.tngtech.archunit:archunit:0.10.2'
 
-    compile project(":checkout-core")
+
 }
 
 

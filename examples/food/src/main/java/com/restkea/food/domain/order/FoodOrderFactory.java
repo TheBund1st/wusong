@@ -2,16 +2,15 @@ package com.restkea.food.domain.order;
 
 import com.thebund1st.wusong.domain.order.OrderFactory;
 
-import java.time.LocalDateTime;
 import java.util.UUID;
 
-public class FoodOrderFactory implements OrderFactory<String, FoodOrder> {
+public class FoodOrderFactory implements OrderFactory<CheckoutFoodBusinessIdentity, FoodOrder> {
 
     @Override
-    public FoodOrder make(String businessIdentity, LocalDateTime when) {
+    public FoodOrder make(CheckoutFoodBusinessIdentity businessIdentity) {
         FoodOrder order = new FoodOrder();
         order.setOrderId(UUID.randomUUID().toString().replace("-", ""));
-        order.setCreatedAt(when);
+        order.setCreatedAt(businessIdentity.getWhen());
         return order;
     }
 }

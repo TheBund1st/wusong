@@ -1,11 +1,13 @@
 apply plugin: 'maven-publish'
 apply plugin: 'com.jfrog.bintray'
 
+def repoUrl = "https://github.com/TheBund1st/wusong"
+
 def pomConfig = {
     licenses {
         license {
             name "The Apache Software License, Version 2.0"
-            url "https://github.com/TheBund1st/daming/blob/master/LICENSE"
+            url "${repoUrl}/blob/master/LICENSE"
             distribution "repo"
         }
     }
@@ -18,9 +20,9 @@ def pomConfig = {
     }
 
     scm {
-        url 'scm:https://github.com/TheBund1st/daming'
-        connection 'scm:https://github.com/TheBund1st/daming'
-        developerConnection 'scm:https://github.com/TheBund1st/daming'
+        url "scm:${repoUrl}"
+        connection "scm:${repoUrl}"
+        developerConnection "scm:${repoUrl}"
     }
 }
 
@@ -64,7 +66,7 @@ bintray {
         repo = 'maven'
         name = project.name
         licenses = ['Apache-2.0']
-        vcsUrl = 'https://github.com/TheBund1st/daming.git'
+        vcsUrl = "scm:${repoUrl}.git"
         version {
             gpg {
                 sign = false
