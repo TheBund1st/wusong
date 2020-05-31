@@ -1,18 +1,18 @@
 package com.restkea.food.application.task.step;
 
 import com.restkea.food.application.command.ReceiveFoodPaymentCommand;
+import com.restkea.food.application.task.context.ReceiveFoodPaymentContext;
 import com.restkea.food.domain.order.FoodOrder;
 import com.restkea.food.domain.order.FoodOrderRepository;
 import com.restkea.food.domain.payment.FoodPayment;
-import com.restkea.food.application.task.context.ReceiveFoodPaymentContext;
-import org.thebund1st.tfb.task.step.When;
 import lombok.RequiredArgsConstructor;
+import org.thebund1st.wusong.application.task.step.when.ReceivePayment;
 
 import java.util.UUID;
 
 
 @RequiredArgsConstructor
-public class ReceiveFoodPayment implements When<ReceiveFoodPaymentContext, FoodPayment> {
+public class ReceiveFoodPayment implements ReceivePayment<ReceiveFoodPaymentContext, FoodPayment> {
     private final FoodOrderRepository orderRepository;
 
     @Override

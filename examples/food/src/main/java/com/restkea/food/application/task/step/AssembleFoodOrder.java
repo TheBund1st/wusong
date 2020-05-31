@@ -1,15 +1,15 @@
 package com.restkea.food.application.task.step;
 
 import com.restkea.food.application.command.PlaceFoodOrderCommand;
+import com.restkea.food.application.task.context.PlaceFoodOrderContext;
 import com.restkea.food.domain.order.FoodOrder;
 import com.restkea.food.domain.order.FoodOrderFactory;
 import com.restkea.food.domain.order.item.FoodItem;
 import com.restkea.food.domain.order.item.FoodItemPrice;
 import com.restkea.food.domain.order.item.FoodOrderLineItem;
 import com.restkea.food.domain.pricing.FoodPrice;
-import com.restkea.food.application.task.context.PlaceFoodOrderContext;
-import org.thebund1st.tfb.task.step.When;
 import lombok.RequiredArgsConstructor;
+import org.thebund1st.wusong.application.task.step.when.PlaceOrder;
 
 import java.util.List;
 
@@ -17,7 +17,7 @@ import static java.util.stream.Collectors.toList;
 
 
 @RequiredArgsConstructor
-public class AssembleFoodOrder implements When<PlaceFoodOrderContext, FoodOrder> {
+public class AssembleFoodOrder implements PlaceOrder<PlaceFoodOrderContext, FoodOrder> {
     private final FoodOrderFactory orderFactory;
 
     @Override

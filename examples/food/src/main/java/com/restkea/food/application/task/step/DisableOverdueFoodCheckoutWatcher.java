@@ -5,7 +5,7 @@ import com.restkea.food.application.task.context.ReceiveFoodPaymentContext;
 import com.restkea.food.domain.payment.FoodPayment;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.thebund1st.wusong.application.task.step.DisableOverdueCheckoutWatcher;
+import org.thebund1st.wusong.application.task.step.then.DisableOverdueCheckoutWatcher;
 
 @Slf4j
 @RequiredArgsConstructor

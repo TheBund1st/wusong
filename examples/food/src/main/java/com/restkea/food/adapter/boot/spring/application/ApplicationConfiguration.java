@@ -23,6 +23,7 @@ import org.thebund1st.tfb.task.step.ThenConditional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.thebund1st.wusong.application.task.step.when.ReceivePayment;
 
 import static org.thebund1st.tfb.task.step.GivenDummy.dummyGiven;
 import static java.util.Arrays.asList;
@@ -91,7 +92,7 @@ public class ApplicationConfiguration {
     }
 
     @Bean
-    public ReceiveFoodPayment receiveFoodPayment() {
+    public ReceivePayment receiveFoodPayment() {
         return new ReceiveFoodPayment(foodOrderRepository);
     }
 
